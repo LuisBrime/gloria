@@ -1,0 +1,28 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  display: grid;
+}
+
+#mainContainer {
+  position: relative;
+  display: block;
+  width: fit-content;
+  height: fit-content;
+  align-self: center;
+  justify-self: center;
+}
+
+#mainCanvas {
+  display: block;
+}
+
+#signatureContainer {
+  display: none;
+  width: fit-content;
+  height: fit-content;
+}
