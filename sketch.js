@@ -100,6 +100,8 @@ function globalSetup() {
   setupParams()
   setupControllers()
   setupDrawingData()
+
+  setupDbug()
 }
 
 function setupGlobalVariables() {
@@ -314,13 +316,13 @@ function setupCriaturas() {
 function draw() {
   const gen = g.next()
 
-  if (gen.done) {
-    noLoop()
-    renderingDone = true
-    preRenderingDone = true
-    console.log(`🎉 Rendering done!`)
-    $fx.preview()
-  }
+  // if (gen.done) {
+  //   noLoop()
+  //   renderingDone = true
+  //   preRenderingDone = true
+  //   console.log(`🎉 Rendering done!`)
+  //   $fx.preview()
+  // }
 
   showCanvases(gen.done)
 }
@@ -328,17 +330,18 @@ function draw() {
 function showCanvases(withTexture = false) {
   background(palette.bg)
 
-  image(riverCnv, 0, 0)
-  image(grassCnv, 0, 0)
-  image(cnv, 0, 0)
-  image(beeCnv, 0, 0)
+  // image(riverCnv, 0, 0)
+  // image(grassCnv, 0, 0)
+  // image(cnv, 0, 0)
+  // image(beeCnv, 0, 0)
 
-  if (renderingDone && toggleSign) drawSignature()
+  // if (renderingDone && toggleSign) drawSignature()
 
-  if (withTexture) {
-    image(textureCnv, 0, 0)
-    granulateSimple(17.5, true, textureCnv)
-  }
+  // if (withTexture) {
+  //   image(textureCnv, 0, 0)
+  //   granulateSimple(17.5, true, textureCnv)
+  // }
+  drawDebug()
 }
 
 function drawSignature() {
