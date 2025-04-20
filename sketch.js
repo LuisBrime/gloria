@@ -40,24 +40,14 @@ let toggleTexture
 let toggleSign
 let signD
 
-// let capturer
-
-// P5Capture.setDefaultOptions({
-//   format: 'mp4',
-//   baseFileName: (date) => `${date.getDate()}-${nSeed}-${rSeed}`,
-//   disableUi: true,
-// })
-
 function setup() {
   rSeed = floor($fx.rand() * 100000000)
   nSeed = floor($fx.rand() * 100000000)
-  console.log(`Hash: ${$fx.hash}`)
-  console.log(`Random seed: ${rSeed}`)
-  console.log(`Noise seed: ${nSeed}`)
+  console.log(`💡 Hash: ${$fx.hash}`)
+  console.log(`💡 Random seed: ${rSeed}`)
+  console.log(`💡 Noise seed: ${nSeed}`)
 
   globalSetup()
-
-  // capturer = P5Capture.getInstance()
 }
 
 function sizeCanvas() {
@@ -110,39 +100,6 @@ function globalSetup() {
   setupParams()
   setupControllers()
   setupDrawingData()
-}
-
-// DELETTEEEEE
-function drawHMAP() {
-  for (let i = 0; i <= mapController.cols; i++) {
-    for (let j = 0; j <= mapController.rows; j++) {
-      const x = i * mapController.xRes
-      const y = j * mapController.yRes
-      push()
-      translate(x, y)
-      stroke('black')
-      strokeWeight(10)
-      point(0, 0)
-
-      const t = mapController.hMapT(i, j)
-      stroke('#14b8a6')
-      strokeWeight(6)
-      line(
-        0,
-        0,
-        mapController.xRes * cos(t) * 0.8,
-        mapController.yRes * sin(t) * 0.8,
-      )
-
-      stroke('#ea580c')
-      strokeWeight(3)
-      const v = createVector(x, y)
-      const l = p5.Vector.sub(mainStar, v).normalize()
-      line(0, 0, l.x * mapController.xRes * 0.7, l.y * mapController.yRes * 0.7)
-
-      pop()
-    }
-  }
 }
 
 function setupGlobalVariables() {
@@ -284,8 +241,7 @@ function setupLand() {
 function setupFlowers() {
   let xoff = 0
   let yoff = 0
-  // for (let i = 0; i < 5555; i++) {
-  for (let i = 0; i < 3555; i++) {
+  for (let i = 0; i < 5555; i++) {
     const x = random(W * 0.005, W * 0.995)
     const y = random(H * 0.005, H * 0.995)
 
@@ -356,7 +312,6 @@ function setupCriaturas() {
 }
 
 function draw() {
-  // drawHMAP()
   const gen = g.next()
 
   if (gen.done) {
@@ -364,10 +319,7 @@ function draw() {
     renderingDone = true
     preRenderingDone = true
     console.log(`🎉 Rendering done!`)
-    // capturer.stop()
     $fx.preview()
-  } else if (frameCount === 1) {
-    // capturer.start()
   }
 
   showCanvases(gen.done)
