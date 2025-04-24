@@ -104,6 +104,7 @@ class AFlower {
 class BasicFlower extends AFlower {
   constructor(x, y, r, c) {
     super(x, y, c)
+    this.type = FlowerType.basic
 
     this.r = r
   }
@@ -195,6 +196,7 @@ class BasicFlower extends AFlower {
 class DaisyFlower extends AFlower {
   constructor(x, y, r, t, c) {
     super(x, y, c)
+    this.type = FlowerType.daisy
 
     this.r = r
     this.t = t
@@ -338,6 +340,7 @@ class DaisyFlower extends AFlower {
 class GladioliFlower extends AFlower {
   constructor(x, y, w, h, t, c) {
     super(x, y, c)
+    this.type = FlowerType.gladioli
 
     this.w = w
     this.h = h
@@ -588,6 +591,7 @@ class GladioliFlower extends AFlower {
 class CempaFlower extends AFlower {
   constructor(x, y, r, t, c) {
     super(x, y, c)
+    this.type = FlowerType.cempa
 
     this.r = r
     this.t = t
@@ -710,6 +714,7 @@ class CempaFlower extends AFlower {
 class TulipFlower extends AFlower {
   constructor(x, y, w, t, c) {
     super(x, y, c)
+    this.type = FlowerType.tulip
 
     this.w = w * 0.779
     this.h = this.w * 1.9
@@ -910,6 +915,7 @@ class TulipFlower extends AFlower {
 class CactusFlower extends AFlower {
   constructor(x, y, w, t, c, ci) {
     super(x, y, c)
+    this.type = FlowerType.cactus
 
     this.w = w
     this.h = this.w * 2.867
@@ -1337,6 +1343,7 @@ class CactusFlower extends AFlower {
 class VioletFlower extends AFlower {
   constructor(x, y, r, t, c, ci) {
     super(x, y, c)
+    this.type = FlowerType.violet
 
     this.r = r
     this.t = t
@@ -1512,6 +1519,7 @@ class VioletFlower extends AFlower {
 class PeonyFlower extends AFlower {
   constructor(x, y, r, t, c) {
     super(x, y, c)
+    this.type = FlowerType.peony
 
     this.r = r
     this.t = t

@@ -82,7 +82,7 @@ function drawLangDBug({ showWater = true, showLand = true }) {
             debugCnv.push()
             debugCnv.translate(x, y)
             debugCnv.rotate(t)
-            debugCnv.textSize(xRes * 3.5)
+            debugCnv.textSize(xRes * 2.25)
             debugCnv.text('pasto', 0, 0)
             debugCnv.pop()
         }
@@ -90,9 +90,31 @@ function drawLangDBug({ showWater = true, showLand = true }) {
     }
 }
 
+function drawDBugFlowers({ showFlowers = true }) {
+    debugCnv.push()
+    debugCnv.textAlign(CENTER, BOTTOM)
+    if (showFlowers) {
+        for (let i = 0; i < flowerController.flowers.length; i++) {
+            const f = flowerController.flowers[i]
+
+            debugCnv.push()
+            debugCnv.translate(f.x, f.y)
+            debugCnv.rotate(f.t)
+            debugCnv.stroke(f.c)
+            debugCnv.strokeWeight(f.r * 0.3)
+            debugCnv.fill(palette.bg)
+            debugCnv.textSize(xRes * 5)
+            debugCnv.text(f.type[0].toUpperCase(), 0, 0)
+            debugCnv.pop()
+        }
+    }
+    debugCnv.pop()
+}
+
 function drawDebug() {
     drawMap({ showNormal: false, showLightMap: false })
-    drawLangDBug({})
+    drawLangDBug({ showLand: false, showWater: false })
+    drawDBugFlowers({})
     image(debugCnv, 0, 0)
     noLoop()
 }
