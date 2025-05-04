@@ -196,7 +196,7 @@ class River {
       canva.rotate(t)
 
       if (filled) {
-        if (!((i + 1) % (rows * 0.1))) yield 0
+        if (!((i + 1) % (rows * 0.45))) yield 0
 
         canva.beginShape()
         pen.c.setAlpha(alpha(pen.c) - 52)
@@ -209,7 +209,7 @@ class River {
         }
         canva.endShape()
       } else {
-        for (const _ of pen.drawMemoed(canva)) {
+        for (const _ of pen.drawMemoed(canva, 10)) {
           yield 0
         }
       }
