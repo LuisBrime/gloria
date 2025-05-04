@@ -1,4 +1,5 @@
 let debugCnv
+let mapB4Erosion = []
 
 function setupDbug() {
     debugCnv = createGraphics(W, H)
@@ -15,7 +16,7 @@ function drawDbugVect(v, cnv) {
     cnv.pop()
 }
 
-function drawMap({ showNormal = false, showLightMap = false }) {
+function drawMap({ showNormal = false, showLightMap = false, showBeforeErosion = false }) {
     debugCnv.push()
     debugCnv.stroke(palette.penColor)
     debugCnv.strokeWeight(mapController.xRes * 0.1)
@@ -27,6 +28,19 @@ function drawMap({ showNormal = false, showLightMap = false }) {
 
             debugCnv.push()
             debugCnv.translate(x, y)
+
+            if (showBeforeErosion) {
+                debugCnv.push()
+                const aC = color(palette.penColor)
+                aC.setAlpha(50)
+                debugCnv.stroke(aC)
+                debugCnv.strokeWeight(mapController.xRes * 0.145)
+                const bT = mapB4Erosion[i][j] * PI * map(j, 0, mapController.rows, 1, 0.45) + mapController.tSmoothing
+                debugCnv.rotate(bT)
+                drawDbugVect(createVector(mapController.xRes * 0.9, mapController.yRes * 0.9), debugCnv)
+                debugCnv.pop()
+            }
+
             debugCnv.rotate(t)
             drawDbugVect(createVector(mapController.xRes * 0.75, mapController.yRes * 0.75), debugCnv)
 
@@ -112,9 +126,9 @@ function drawDBugFlowers({ showFlowers = true }) {
 }
 
 function drawDebug() {
-    drawMap({ showNormal: false, showLightMap: false })
-    drawLangDBug({ showLand: false, showWater: false })
-    drawDBugFlowers({})
+    drawMap({ showNormal: false, showLightMap: false, showBeforeErosion: true })
+    // drawLangDBug({ showLand: false, showWater: false })
+    // drawDBugFlowers({})
     image(debugCnv, 0, 0)
     noLoop()
 }

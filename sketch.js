@@ -140,7 +140,9 @@ function setupControllers() {
   detailedNoise = new DetailedNoise()
 
   mapController = new MapController(W, H, xRes * 8, yRes * 8)
-  mapController.erodeHMap()
+
+  mapB4Erosion = [...mapController.hMap]
+
   mapController.erodeHMap()
   mapController.erodeHMap()
   mapController.blurHMap()

@@ -84,18 +84,18 @@ class MapController {
 
   erodeHMap() {
     const l = random(0.5, 2)
-    const maxDI = 60 * l
+    const maxDI = 30 * l
     const initialS = 0
     const initialWV = 1
-    const inertia = 0.5
+    const inertia = 0.58
     const sedimentCapacityFactor = 40
     const minSedimentCapacity = 0.01
     const depositS = 0.6 * 1
-    const erodeS = 0.6
+    const erodeS = 0.9
     const g = 4
-    const evaporateS = 0.1 / l
+    const evaporateS = 0.125 / l
 
-    for (let d = 0; d < originalW * originalH; d++) {
+    for (let d = 0; d < originalW; d++) {
       const r1 = random()
       const r2 = random()
       const p = createVector(random(this.w), random(this.h))
@@ -127,11 +127,11 @@ class MapController {
           1,
         )
         const ggh = this.heightAndGradient(nXP, nYP)
-
+        
         if (ggh.some((x) => isNaN(x))) break
 
-        dir.x *= inertia - ggh[0] * (1 - inertia)
-        dir.y *= inertia - ggh[1] * (1 - inertia)
+        dir.x = (dir.x * inertia) - ggh[0] * (1 - inertia)  //  (inertia - ggh[0]) * (1 - inertia)
+        dir.y = (dir.y * inertia) - ggh[1] * (1 - inertia) // (inertia - ggh[1]) * (1 - inertia)
         dir.normalize()
         p.add(dir)
 
