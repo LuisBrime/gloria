@@ -84,18 +84,18 @@ class MapController {
 
   erodeHMap() {
     const l = random(0.5, 2)
-    const maxDI = 30 * l
+    const maxDI = 60 * l
     const initialS = 0
     const initialWV = 1
     const inertia = 0.58
     const sedimentCapacityFactor = 40
-    const minSedimentCapacity = 0.01
-    const depositS = 0.6 * 1
+    const minSedimentCapacity = 1.0175
+    const depositS = 0.85
     const erodeS = 0.9
     const g = 4
-    const evaporateS = 0.125 / l
+    const evaporateS = 0.5 / l
 
-    for (let d = 0; d < originalW; d++) {
+    for (let d = 0; d < (originalW * originalH) * 0.885; d++) {
       const r1 = random()
       const r2 = random()
       const p = createVector(random(this.w), random(this.h))
