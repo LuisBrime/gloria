@@ -141,8 +141,10 @@ function setupControllers() {
 
   mapController = new MapController(W, H, xRes * 8, yRes * 8)
 
-  mapB4Erosion = [...mapController.hMap]
+  mapB4Erosion = structuredClone(mapController.hMap)
+  // console.log(mapB4Erosion[0], mapController.hMap[0])
 
+  mapController.erodeHMap()
   mapController.erodeHMap()
   mapController.erodeHMap()
   mapController.blurHMap()

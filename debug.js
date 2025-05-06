@@ -32,7 +32,7 @@ function drawMap({ showNormal = false, showLightMap = false, showBeforeErosion =
             if (showBeforeErosion) {
                 debugCnv.push()
                 const aC = color(palette.penColor)
-                aC.setAlpha(50)
+                aC.setAlpha(20)
                 debugCnv.stroke(aC)
                 debugCnv.strokeWeight(mapController.xRes * 0.145)
                 const bT = mapB4Erosion[i][j] * PI * map(j, 0, mapController.rows, 1, 0.45) + mapController.tSmoothing
@@ -126,7 +126,7 @@ function drawDBugFlowers({ showFlowers = true }) {
 }
 
 function drawDebug() {
-    drawMap({ showNormal: false, showLightMap: false, showBeforeErosion: true })
+    drawMap({ showNormal: false, showLightMap: true, showBeforeErosion: false })
     // drawLangDBug({ showLand: false, showWater: false })
     // drawDBugFlowers({})
     image(debugCnv, 0, 0)
