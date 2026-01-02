@@ -274,6 +274,68 @@ const setupPalette = (index) => {
     wings: '#0079FA',
   })
 
+  // 7
+  names.push(`cuarentas`)
+  bgs.push('#E8EEE8')
+  penPalettes.push('#304435')
+  flowerPalettes.push([
+    '#CE4676',
+    '#F50087',
+    '#E70D85',
+    '#F34FA9',
+    '#F480C0',
+    '#F58AC5',
+    '#F594C9',
+  ])
+  leafPalettes.push(['#3BB071', '#36A169', '#4D935F'])
+  grassPalettes.push(['#219E80', '#1DB191', '#1AAA89'])
+  riverPalettes.push(['#EBBFA8', '#E9C1AF', '#EECEBE', '#F4DACD', '#F7E6DE'])
+  beePalettes.push({
+    body: '#DE82A2',
+    stripes: '#D62965',
+    wings: '#EC51B5',
+  })
+  ladyPalettes.push({
+    body: '#FCCADC',
+    dots: '#EC51B5',
+  })
+  mothPalettes.push({
+    body: '#E04242',
+    wings: '#E88E73',
+  })
+
+  // 8
+  names.push(`noche de invierno`)
+  bgs.push('#1E003D')
+  penPalettes.push('#F1B132')
+  flowerPalettes.push(
+    [
+      '#670F4D',
+      '#AF1D5C',
+      '#F07076',
+      '#E472B6',
+      '#CC61CC',
+      '#C178E8',
+      '#E5EC9D',
+    ].reverse(),
+  )
+  leafPalettes.push(['#9445E3', '#8C3EDA', '#7A2BCA'])
+  grassPalettes.push(['#945BCD', '#8C4FC9', '#7A4CA9'])
+  riverPalettes.push(['#EAD58A', '#EFE1A9', '#F2E7BA', '#F4EBC7'])
+  beePalettes.push({
+    body: '#D9F7F5',
+    stripes: '#84F0DA',
+    wings: '#4DFEDB',
+  })
+  ladyPalettes.push({
+    body: '#FCCADC',
+    dots: '#F8DC96',
+  })
+  mothPalettes.push({
+    body: '#C4CFF7',
+    wings: '#7EB0F7',
+  })
+
   palette = {
     bg: bgs[index],
     flowerPalette: flowerPalettes[index],

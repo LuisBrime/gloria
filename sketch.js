@@ -43,9 +43,11 @@ let signD
 function setup() {
   rSeed = floor($fx.rand() * 100000000)
   nSeed = floor($fx.rand() * 100000000)
-  console.log(`💡 Hash: ${$fx.hash}`)
-  console.log(`💡 Random seed: ${rSeed}`)
-  console.log(`💡 Noise seed: ${nSeed}`)
+  console.log(`
+    💡 Hash: ${$fx.hash}
+    💡 Random seed: ${rSeed}
+    💡 Noise seed: ${nSeed}
+  `)
 
   globalSetup()
 }

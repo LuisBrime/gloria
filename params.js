@@ -51,7 +51,7 @@ function setupParams() {
     pi = random([4, 5])
   } else {
     // 7.1%
-    pi = 6
+    pi = random([6, 7, 8])
   }
   setupPalette(pi)
   console.log(`🎨 paleta de colores: `, palette.name)

@@ -768,7 +768,7 @@ class TulipFlower extends AFlower {
     const rsPs = []
     const lsPs = []
 
-    for (let i = 0; i < 19; i++) {
+    for (let i = 0; i < 20; i++) {
       const dt = map(i, 0, 18, 0, 1)
 
       const dy = petalBez(dt, false)
@@ -784,7 +784,7 @@ class TulipFlower extends AFlower {
       this.petalPoints.push(p5.Vector.add(rV, tv))
       rsPs.push(rV)
 
-      if (i < 18) {
+      if (i < 19) {
         const lV = createVector(dxn, dy)
         this.petalPoints.push(p5.Vector.add(lV, tv))
         lsPs.unshift(lV)
