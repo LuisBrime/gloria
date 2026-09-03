@@ -165,11 +165,8 @@ class Pen {
     for (let i = 0; i < this.memoed.length; i++) {
       const points = this.memoed[i]
       for (let j = 0; j < points.length; j += 3) {
-        cnv.push()
-        cnv.translate(points[j], points[j + 1])
         cnv.strokeWeight(points[j + 2])
-        cnv.point(0, 0)
-        cnv.pop()
+        cnv.point(points[j], points[j + 1])
       }
     }
 
@@ -179,18 +176,16 @@ class Pen {
   *drawMemoed(cnv, maxYN = 150) {
     cnv.push()
     cnv.stroke(this.c)
+    const stepStride = Math.max(1, Math.floor(maxYN)) * 3
 
     for (let i = 0; i < this.memoed.length; i++) {
       const points = this.memoed[i]
 
       for (let j = 0; j < points.length; j += 3) {
-        if (!((j / 3 + 1) % Math.floor(maxYN))) yield 0
+        if ((j + 3) % stepStride === 0) yield 0
 
-        cnv.push()
-        cnv.translate(points[j], points[j + 1])
         cnv.strokeWeight(points[j + 2])
-        cnv.point(0, 0)
-        cnv.pop()
+        cnv.point(points[j], points[j + 1])
       }
     }
 
@@ -203,10 +198,11 @@ class Pen {
     cnv.fill(this.c)
 
     for (let i = 0; i < this.figureMemoed.length; i += 3) {
-      cnv.push()
-      cnv.translate(this.figureMemoed[i], this.figureMemoed[i + 1])
-      cnv.circle(0, 0, this.figureMemoed[i + 2])
-      cnv.pop()
+      cnv.circle(
+        this.figureMemoed[i],
+        this.figureMemoed[i + 1],
+        this.figureMemoed[i + 2],
+      )
     }
 
     cnv.pop()
@@ -216,14 +212,16 @@ class Pen {
     cnv.push()
     cnv.noStroke()
     cnv.fill(this.c)
+    const stepStride = Math.max(1, Math.floor(maxYN)) * 3
 
     for (let i = 0; i < this.figureMemoed.length; i += 3) {
-      if (!((i / 3 + 1) % Math.floor(maxYN))) yield 0
+      if ((i + 3) % stepStride === 0) yield 0
 
-      cnv.push()
-      cnv.translate(this.figureMemoed[i], this.figureMemoed[i + 1])
-      cnv.circle(0, 0, this.figureMemoed[i + 2])
-      cnv.pop()
+      cnv.circle(
+        this.figureMemoed[i],
+        this.figureMemoed[i + 1],
+        this.figureMemoed[i + 2]
+      )
     }
 
     cnv.pop()

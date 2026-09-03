@@ -77,12 +77,13 @@ class Flowers {
   }
 
   *drawFlowers(canva) {
-    for (let i = 0; i < this.flowers.length; i++) {
-      const flower = this.flowers[i]
+    const yieldBatch = Math.max(1, Math.floor(rows * 0.02))
 
-      for (const _ of flower.drawG(canva)) {
-        yield 0
-      }
+    for (let i = 0; i < this.flowers.length; i++) {
+      if (i !== 0 && i % yieldBatch === 0) yield 0
+
+      const flower = this.flowers[i]
+      for (const _ of flower.drawG(canva)) {}
     }
 
     // Cleanup

@@ -72,10 +72,17 @@ class River {
       const pen = new Pen(c)
       pen.setSW(penSW * random(2.5, 3.2))
 
+      let fillColor = null
+      if (filled) {
+        fillColor = color(c)
+        fillColor.setAlpha(alpha(fillColor) - 52)
+      }
+
       Object.assign(w, {
         c,
         pen,
         filled,
+        fillColor,
         isReflection,
         t: 0,
       })
@@ -200,19 +207,27 @@ class River {
   }
 
   *drawWater(canva) {
+    const yieldBatch = Math.max(1, Math.floor(rows * 0.1))
+
     for (let i = 0; i < this.waterDots.length; i++) {
-      const { filled, packed, pen, t, vertices } = this.waterDots[i]
+      if (i !== 0 && i % yieldBatch === 0) yield 0
+
+      const {
+        fillColor,
+        filled,
+        packed,
+        pen,
+        t,
+        vertices,
+      } = this.waterDots[i]
 
       canva.push()
       canva.translate(packed.x, packed.y)
       canva.rotate(t)
 
       if (filled) {
-        if (!((i + 1) % (rows * 0.45))) yield 0
-
         canva.beginShape()
-        pen.c.setAlpha(alpha(pen.c) - 52)
-        canva.fill(pen.c)
+        canva.fill(fillColor)
         canva.noStroke()
         canva.curveVertex(vertices[0].x, vertices[0].y)
         for (let j = 0; j < vertices.length; j++) {
@@ -221,9 +236,7 @@ class River {
         }
         canva.endShape()
       } else {
-        for (const _ of pen.drawMemoed(canva, 10)) {
-          yield 0
-        }
+        pen.displayMemoed(canva)
       }
 
       canva.pop()

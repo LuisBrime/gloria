@@ -11,25 +11,22 @@ class DetailedNoise {
       [pow(s, 4), 16 * ms],
       [pow(s, 5), 32 * ms],
     ]
+
+    this.nT = this.noiseD.reduce((acc, d) => acc + d[0], 0)
   }
 
   noise(x, y, minConstrain = 0, maxConstrain = 1) {
     let n = 0
-    let nT = 0
     for (let i = 0; i < this.noiseD.length; i++) {
       const a = this.noiseD[i][0]
       const f = this.noiseD[i][1]
-      n +=
-        norm(
-          noisex.simplex2(x * noiseScale * f * 2, y * noiseScale * f * 2),
-          -1,
-          1,
-        ) * a
-      nT += a
+
+      const raw = noisex.simplex2(x * noiseScale * f * 2, y * noiseScale * f * 2)
+      n += (raw + 1) * 0.5 * a
     }
 
     return constrain(
-      map(n, 0, nT, minConstrain, maxConstrain),
+      map(n, 0, this.nT, minConstrain, maxConstrain),
       minConstrain,
       maxConstrain,
     )

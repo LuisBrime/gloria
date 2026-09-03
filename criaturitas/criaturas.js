@@ -2,7 +2,7 @@ let criaturasCsController
 
 class Criatura {
   constructor(x, y, t, w, h) {
-    this.pos = createVector(x, y)
+    this.pos = { x, y }
     this.t = t
     this.w = w
     this.h = h
@@ -104,18 +104,18 @@ class Abejita extends Criatura {
       const dxn = bezierPoint(-p1.x, -cp1.x, -cp2.x, -p2.x, dt)
       const dy = bezierPoint(p1.y, cp1.y, cp2.y, p2.y, dt)
 
-      const rV = createVector(dxp, dy)
+      const rV = { x: dxp, y: dy }
       this.wingPoints.push(rV)
       this.rsPs.push(rV)
 
       if (i < 13) {
-        const lV = createVector(dxn, dy)
+        const lV = { x: dxn, y: dy }
         this.wingPoints.push(lV)
         this.lsPs.unshift(lV)
       }
     }
 
-    this.contourPs = [...this.rsPs, ...this.lsPs]
+    this.contourPs = this.rsPs.concat(this.lsPs)
   }
 
   setupStripes() {
@@ -127,12 +127,12 @@ class Abejita extends Criatura {
     const dxp = random(0.885, 1.08)
     const dyp = random(0.85, 0.925)
 
-    let stripeTop = createVector(-dx * dxp, -dy * dyp * 0.96)
-    let stripeBot = createVector(-dx * dxp, dy * dyp)
+    let stripeTop = {x: -dx * dxp, y: -dy * dyp * 0.96}
+    let stripeBot = {x: -dx * dxp, y: dy * dyp}
     stripesPen.memoLine(stripeTop, stripeBot, 0.02, 0.65)
 
-    stripeTop = createVector(dx * dxp, -dy * dyp * 0.96)
-    stripeBot = createVector(dx * dxp, dy * dyp)
+    stripeTop = {x: dx * dxp, y: -dy * dyp * 0.96}
+    stripeBot = {x: dx * dxp, y: dy * dyp}
     stripesPen.memoLine(stripeTop, stripeBot, 0.02, 0.65)
 
     this.stripesPen = stripesPen
@@ -142,19 +142,25 @@ class Abejita extends Criatura {
     const sW = this.h * 0.28
     const sH = this.w * 0.245
 
-    const p1 = createVector(sW * 0.5, 0)
-    const p2 = createVector(0, -sH)
-    const p3 = createVector(-sW * 0.5, 0)
+    const p1 = {x: sW * 0.5, y: 0}
+    const p2 = {x: 0, y: -sH}
+    const p3 = {x: -sW * 0.5, y: 0}
 
     this.stingerPoints = []
     for (let i = 0; i < 14; i++) {
       const dt = map(i, 0, 13, 0, 1)
 
-      const dp = p5.Vector.lerp(p1, p2, dt)
+      const dp = {
+        x: lerp(p1.x, p2.x, dt),
+        y: lerp(p1.y, p2.y, dt),
+      }
       this.stingerPoints.push(dp)
 
       if (i < 13) {
-        const np = p5.Vector.lerp(p3, p2, dt)
+        const np = {
+          x: lerp(p3.x, p2.x, dt),
+          y: lerp(p3.y, p2.y, dt),
+        }
         this.stingerPoints.push(np)
       }
     }
@@ -333,8 +339,8 @@ class Catarina extends Criatura {
       0.2,
     )
     bodyPen.memoLine(
-      createVector(-this.w * 0.45, 0),
-      createVector(this.w * 0.45, 0),
+      {x: -this.w * 0.45, y: 0},
+      {x: this.w * 0.45, y: 0},
       0.18,
       0.2,
     )
@@ -392,9 +398,9 @@ class Catarina extends Criatura {
       const dxn = antenaBezierX(dt, true)
       const dy = bezierPoint(p1.y, cp1.y, cp2.y, p2.y, dt)
 
-      const lV = createVector(dxn, dy)
+      const lV = {x: dxn, y: dy}
       leftAntenaPs.push(lV)
-      const rV = createVector(dxp, dy)
+      const rV = {x: dxp, y: dy}
       rightAntenaPs.push(rV)
     }
 
@@ -438,10 +444,8 @@ class Catarina extends Criatura {
       const dotYN = -dotYP
 
       dots.push(
-        ...[
-          { x: dotX, y: dotYP },
-          { x: dotX, y: dotYN },
-        ],
+        { x: dotX, y: dotYP },
+        { x: dotX, y: dotYN },
       )
     }
     this.dots = dots
@@ -648,9 +652,9 @@ class Polilla extends Criatura {
       const dxn = antenaBezierX(dt, true)
       const dy = bezierPoint(p1.y, cp1.y, cp2.y, p2.y, dt)
 
-      const lV = createVector(dxn, dy)
+      const lV = {x: dxn, y: dy}
       leftAntenaPs.push(lV)
-      const rV = createVector(dxp, dy)
+      const rV = {x: dxp, y: dy}
       rightAntenaPs.push(rV)
     }
 
@@ -723,7 +727,7 @@ class Polilla extends Criatura {
 
       const p = bF(dT)
       this.rightWingPs.push(p)
-      this.leftWingPs.push({ ...p, x: p.x * -1 })
+      this.leftWingPs.push({ x: -p.x, y: p.y })
     }
 
     const leftWingPen = new Pen(palette.mothPalette.wings)
