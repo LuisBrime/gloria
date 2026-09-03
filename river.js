@@ -15,30 +15,35 @@ class River {
 
   maybeAddToRiver(x, y) {
     let currentSize = this.minWaterSize
-    let lastAdded, canAdd
+    let lastValidR = null
+    let canAdd = false
 
     while (currentSize < this.maxWaterSize) {
       const r = currentSize / 2
-      const pc = new PackedCircle(x, y, r, min(r * 0.33, 2))
+      const cr = Math.min(r * 0.33, 2)
+      canAdd = PackedCircle.canPackCircle(this.packer, x, y, r, cr)
 
-      canAdd = this.packer.addShape(pc.circles, false)
+      if (!canAdd && lastValidR === null) return false
 
-      if (!canAdd && !lastAdded) return false
+      if (!canAdd && lastValidR !== null) {
+        const lastCR = Math.min(lastValidR * 0.33, 2)
+        const pc = new PackedCircle(x, y, lastValidR, lastCR)
 
-      if (!canAdd && lastAdded) {
         this.packer.addShape(pc.circles)
-        this.waterDots.push({ x, y, r, packed: lastAdded })
+        this.waterDots.push({ x, y, r: lastValidR, packed: pc })
         return true
       } else if (canAdd) {
-        lastAdded = pc
+        lastValidR = r
       }
 
       currentSize *= 1 + this.sizeDR
     }
 
-    if (canAdd && lastAdded) {
-      this.packer.addShape(lastAdded.circles)
-      this.waterDots.push({ x, y, r: lastAdded.r, packed: lastAdded })
+    if (canAdd && lastValidR !== null) {
+      const lastCR = Math.min(lastValidR * 0.33, 2)
+      const pc = new PackedCircle(x, y, lastValidR, lastCR)
+      this.packer.addShape(pc.circles)
+      this.waterDots.push({ x, y, r: lastValidR, packed: pc })
       return true
     }
 
@@ -77,15 +82,18 @@ class River {
     })
 
     // Sort array leaving reflections at the end
-    const sortedWaterDots = []
-    this.waterDots.forEach((w) => {
+    const reflections = []
+    const nonReflections = []
+    for (let i = 0; i < this.waterDots.length; i++) {
+      const w = this.waterDots[i]
       if (w.isReflection) {
-        sortedWaterDots.push(w)
+        reflections.push(w)
       } else {
-        sortedWaterDots.unshift(w)
+        nonReflections.push(w)
       }
-    })
-    this.waterDots = sortedWaterDots
+    }
+    nonReflections.reverse()
+    this.waterDots = nonReflections.concat(reflections)
   }
 
   getReflectionColor(w, l, filled, flowerQuadTree) {
@@ -130,7 +138,7 @@ class River {
       for (let t = 0; t <= TAU; t += TAU / 20) {
         const px = w.r * cos(t)
         const py = w.r * sin(t)
-        vertices.push(createVector(px, py))
+        vertices.push({x: px, y: py})
       }
 
       w.vertices = vertices
@@ -139,16 +147,20 @@ class River {
     const isFlowing =
       this.flowType === RiverFlowType.fluyente ||
       this.flowType === RiverFlowType.aceptance
+    const yFactor = isFlowing ? 0.61 : 0.06
 
     this.waterDots.forEach((w) => {
+      const wx = toOGX(w.x)
+      const wy = toOGY(w.y)
+
       let nVOff = 0
       let dvn = random(15, 500)
+
       w.vertices.forEach((v) => {
         for (let i = 0; i < 7; i++) {
-          const { x: wx, y: wy } = pointToOG(w.x, w.y)
           const n = detailedNoise.noise(wx + nVOff, wy + nVOff, -1, 1)
           v.x += n * w.r * 0.65
-          v.y += n * w.r * (isFlowing ? 0.61 : 0.06)
+          v.y += n * w.r * yFactor
         }
 
         nVOff += dvn
@@ -216,5 +228,8 @@ class River {
 
       canva.pop()
     }
+
+    // cleanup
+    this.waterDots = []
   }
 }

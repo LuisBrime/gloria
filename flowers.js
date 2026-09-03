@@ -84,6 +84,9 @@ class Flowers {
         yield 0
       }
     }
+
+    // Cleanup
+    this.flowers = []
   }
 }
 
@@ -235,12 +238,12 @@ class DaisyFlower extends AFlower {
       const dyp = bezierPoint(p1.y, cp1.y, cp2.y, p2.y, dt)
       const dyn = bezierPoint(p1.y, -cp1.y, -cp2.y, p2.y, dt)
 
-      const rV = createVector(dx, dyp)
+      const rV = {x: dx, y: dyp}
       this.petalPoints.push(rV)
       rsPs.push(rV)
 
       if (i < 19) {
-        const lV = createVector(dx, dyn)
+        const lV = {x: dx, y: dyn}
         this.petalPoints.push(lV)
         lsPs.unshift(lV)
       }
@@ -253,7 +256,8 @@ class DaisyFlower extends AFlower {
       a[i] = { t, dt }
     })
 
-    this.contourPs = [...rsPs, ...lsPs]
+    rsPs.push(...lsPs)
+    this.contourPs = rsPs
   }
 
   setupFlower() {
@@ -304,10 +308,7 @@ class DaisyFlower extends AFlower {
       const { t, dt } = this.petalTs[i]
       const dx = this.r * cos(t) * 0.33
       const dy = this.r * sin(t) * 0.33
-      const fT = p5.Vector.sub(
-        createVector(dx, dy),
-        createVector(0, 0),
-      ).heading()
+      const fT = Math.atan2(dy, dx)
       cnv.push()
       cnv.translate(dx, dy)
       cnv.rotate(fT + dt)
@@ -428,12 +429,12 @@ class GladioliFlower extends AFlower {
         dy = sBP(dt, false)
       }
 
-      const rV = createVector(dxp, dy)
+      const rV = {x: dxp, y: dy}
       this.petalPoints.push(rV)
       rsPs.push(rV)
 
       if (i < 19) {
-        const lV = createVector(dxn, dy)
+        const lV = {x: dxn, y: dy}
         this.petalPoints.push(lV)
         lsPs.unshift(lV)
       }
@@ -445,7 +446,9 @@ class GladioliFlower extends AFlower {
       const dt = random(-PI / 16, PI / 16)
       a[i] = { t, dt }
     })
-    this.contourPs = [...rsPs, ...lsPs]
+
+    rsPs.push(...lsPs)
+    this.contourPs = rsPs
   }
 
   setupFlower() {
@@ -500,14 +503,14 @@ class GladioliFlower extends AFlower {
     rootPen.memoDisplay()
     rootPen.setSW(penSW * 3.279)
     rootPen.memoLine(
-      createVector(rootPen.w * 0.5, 0),
-      createVector(rootPen.w * 0.5, rootPen.h),
+      {x: rootPen.w * 0.5, y: 0},
+      {x: rootPen.w * 0.5, y: rootPen.h},
       0.1,
       0.4,
     )
     rootPen.memoLine(
-      createVector(-rootPen.w * 0.5, 0),
-      createVector(-rootPen.w * 0.5, rootPen.h),
+      {x: -rootPen.w * 0.5, y: 0},
+      {x: -rootPen.w * 0.5, y: rootPen.h},
       0.1,
       0.4,
     )
@@ -558,10 +561,7 @@ class GladioliFlower extends AFlower {
         const { t, dt } = this.petalTs[j]
         const dx = this.internalFlowerW * cos(t) * 0.34
         const dy = this.internalFlowerW * sin(t) * 0.34
-        const pT = p5.Vector.sub(
-          createVector(dx, dy),
-          createVector(0, 0),
-        ).heading()
+        const pT = Math.atan2(dy, dx)
 
         cnv.push()
         cnv.translate(dx, dy)
@@ -628,15 +628,14 @@ class CempaFlower extends AFlower {
 
       const px = cos(dt * TAU) * dr
       const py = sin(dt * TAU) * dr
-      const pp = createVector(px, py)
-      const dirT = p5.Vector.sub(pp, createVector(0, 0)).heading()
+      const dirT = Math.atan2(py, px)
 
       const dd = this.petalW * random(0.08, 0.13)
       const ps = this.petalPoints.map((p, i, a) => {
-        return createVector(
-          p.x + (i === 0 || i === a.length - 1 ? 0 : random(-dd, dd)),
-          p.y + (i === 0 || i === a.length - 1 ? 0 : random(-dd, dd)),
-        )
+        return {
+          x: p.x + (i === 0 || i === a.length - 1 ? 0 : random(-dd, dd)),
+          y: p.y + (i === 0 || i === a.length - 1 ? 0 : random(-dd, dd)),
+        }
       })
 
       const petalPen = new Pen(palette.penColor)
@@ -645,7 +644,7 @@ class CempaFlower extends AFlower {
       this.petals.push({
         pen: petalPen,
         points: ps,
-        pos: pp,
+        pos: {x: px, y: py},
         t: dirT + PI / 2 + random(-PI / 16, PI / 16),
       })
     }
@@ -780,13 +779,13 @@ class TulipFlower extends AFlower {
         noisex.simplex2(ogX * 0.6, ogY * 0.6) * TAU,
       ).mult(random(0.8, 1.2))
 
-      const rV = createVector(dxp, dy)
-      this.petalPoints.push(p5.Vector.add(rV, tv))
+      const rV = {x: dxp + tv.x, y: dy + tv.y}
+      this.petalPoints.push(rV)
       rsPs.push(rV)
 
       if (i < 19) {
-        const lV = createVector(dxn, dy)
-        this.petalPoints.push(p5.Vector.add(lV, tv))
+        const lV = {x: dxn + tv.x, y: dy + tv.y}
+        this.petalPoints.push(lV)
         lsPs.unshift(lV)
       }
     }
@@ -808,7 +807,9 @@ class TulipFlower extends AFlower {
         t: 1 * random(0.674, 0.829) * PI * 0.225,
       },
     ]
-    this.contourPs = [...rsPs, ...lsPs]
+
+    rsPs.push(...lsPs)
+    this.contourPs = rsPs
   }
 
   setupPens() {
@@ -844,14 +845,14 @@ class TulipFlower extends AFlower {
     rootPen.memoDisplay()
     rootPen.setSW(penSW * 3.279)
     rootPen.memoLine(
-      createVector(rootPen.w * 0.5, 0),
-      createVector(rootPen.w * 0.5, rootPen.h),
+      {x: rootPen.w * 0.5, y: 0},
+      {x: rootPen.w * 0.5, y: rootPen.h},
       0.1,
       0.4,
     )
     rootPen.memoLine(
-      createVector(-rootPen.w * 0.5, 0),
-      createVector(-rootPen.w * 0.5, rootPen.h),
+      {x: -rootPen.w * 0.5, y: 0},
+      {x: -rootPen.w * 0.5, y: rootPen.h},
       0.1,
       0.4,
     )
@@ -982,7 +983,9 @@ class CactusFlower extends AFlower {
         bodyFPs.push(lP)
       }
     }
-    const bodyConPs = [...bodyRPs, ...bodyLPs]
+
+    bodyRPs.push(...bodyLPs)
+    const bodyConPs = bodyRPs
 
     const fillPen = new Pen(this.c)
     fillPen.setSW(penSW * 1.42)
@@ -1184,9 +1187,10 @@ class CactusFlower extends AFlower {
           }
         }
       }
-
+      
       arm.fillPs = fillPs
-      arm.contourPs = [...rsPs, ...lsPs]
+      rsPs.push(...lsPs)
+      arm.contourPs = rsPs
 
       arm.shortLW = shortLW
       arm.largeLW = largeLW
@@ -1407,7 +1411,8 @@ class VioletFlower extends AFlower {
       }
     }
 
-    this.contourPs = [...rsPs, ...lsPs]
+    rsPs.push(...lsPs)
+    this.contourPs = rsPs
 
     const cDt = PI / 10
     this.centerPs = [
@@ -1579,8 +1584,11 @@ class PeonyFlower extends AFlower {
       const petalT = i * PHI + random(-PHI * 0.0125, PHI * 0.0125)
       const dr = this.r * dlr
 
-      const pos = createVector(cos(petalT * TAU) * dr, sin(petalT * TAU) * dr)
-      const petalDir = p5.Vector.sub(pos, createVector(0, 0)).heading()
+      const pos = {
+        x: cos(petalT * TAU) * dr,
+        y: sin(petalT * TAU) * dr,
+      }
+      const petalDir = Math.atan2(pos.y, pos.x)
       const ps = []
       const fillPen = new Pen(this.c)
       fillPen.setSW(penSW * 1.672)
@@ -1643,14 +1651,14 @@ class PeonyFlower extends AFlower {
     rootPen.memoDisplay()
     rootPen.setSW(penSW * 3.279)
     rootPen.memoLine(
-      createVector(rootPen.w * 0.5, 0),
-      createVector(rootPen.w * 0.5, rootPen.h),
+      {x: rootPen.w * 0.5, y: 0},
+      {x: rootPen.w * 0.5, y: rootPen.h},
       0.1,
       0.4,
     )
     rootPen.memoLine(
-      createVector(-rootPen.w * 0.5, 0),
-      createVector(-rootPen.w * 0.5, rootPen.h),
+      {x: -rootPen.w * 0.5, y: 0},
+      {x: -rootPen.w * 0.5, y: rootPen.h},
       0.1,
       0.4,
     )

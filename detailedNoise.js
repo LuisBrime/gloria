@@ -17,7 +17,8 @@ class DetailedNoise {
     let n = 0
     let nT = 0
     for (let i = 0; i < this.noiseD.length; i++) {
-      const [a, f] = this.noiseD[i]
+      const a = this.noiseD[i][0]
+      const f = this.noiseD[i][1]
       n +=
         norm(
           noisex.simplex2(x * noiseScale * f * 2, y * noiseScale * f * 2),

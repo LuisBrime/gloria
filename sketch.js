@@ -16,6 +16,8 @@ let penSW
 
 let scene
 let cnv, riverCnv, grassCnv, beeCnv, textureCnv
+let flattenedCnv
+let _layersFlattened = false
 
 let ogXRes, ogYRes
 let xRes, yRes
@@ -39,6 +41,7 @@ let toggleTexture
 
 let toggleSign
 let signD
+let _cachedSignElement = null
 
 function setup() {
   rSeed = floor($fx.rand() * 100000000)
@@ -66,13 +69,24 @@ function sizeCanvas() {
 }
 
 function setupGraphics() {
+  // sanity buffer cleanup
+  if (riverCnv) riverCnv.remove()
+  if (grassCnv) grassCnv.remove()
+  if (cnv) cnv.remove()
+  if (beeCnv) beeCnv.remove()
+  if (textureCnv) textureCnv.remove()
+  if (flattenedCnv) flattenedCnv.remove()
+
+  _layersFlattened = false
+  flattenedCnv = null
+  textureCnv = null
+
   const canvasElm = document.getElementById('mainCanvas')
   scene = createCanvas(W, H, canvasElm)
 
   cnv = createGraphics(W, H)
   riverCnv = createGraphics(W, H)
   grassCnv = createGraphics(W, H)
-  textureCnv = createGraphics(W, H)
   beeCnv = createGraphics(W, H)
 
   const params = new URLSearchParams(window.location.search)
@@ -127,6 +141,7 @@ function setupGlobalVariables() {
   preRenderingDone = false
   toggleTexture = true
   toggleSign = true
+  _cachedSignElement = null
   const dwh = map(random(), 0, 1, 0.986, 1.019)
   signD = {
     x: W * random(0.889, 0.913),
@@ -143,6 +158,7 @@ function setupControllers() {
   mapController.erodeHMap()
   mapController.erodeHMap()
   mapController.erodeHMap()
+  mapController.cleanup()
   mapController.blurHMap()
 
   flowerController = new Flowers()
@@ -162,6 +178,15 @@ function setupDrawingData() {
   riverController.colorWater(flowerController.flowerQuadTree)
   riverController.wrapWater()
   criaturasController.setupCriaturas()
+
+  // Cleanup
+  flowerController.packer = null
+  riverController.packer = null
+  criaturasController.packer = null
+  flowerController.flowerQuadTree = null
+  criaturasController.flowerQT = null
+  criaturasController.eventHandler.flowerQT = null
+  mapController.lMap = null
 
   $fx.features({
     palette: palette.name,
@@ -322,28 +347,69 @@ function draw() {
     preRenderingDone = true
     console.log(`🎉 Rendering done!`)
     $fx.preview()
+
+    flattenedCnv = createGraphics(W, H)
+    flattenedCnv.pixelDensity(definition)
+    flattenedCnv.background(palette.bg)
+    flattenedCnv.image(riverCnv, 0, 0)
+    flattenedCnv.image(grassCnv, 0, 0)
+    flattenedCnv.image(cnv, 0, 0)
+    flattenedCnv.image(beeCnv, 0, 0)
+
+    // deallocate
+    riverCnv.remove()
+    grassCnv.remove()
+    cnv.remove()
+    beeCnv.remove()
+    riverCnv = null
+    grassCnv = null
+    cnv = null
+    beeCnv = null
+    _layersFlattened = true
+
+    // Memory cleanup
+    detailedNoise = null
+    mapController = null
+    grassController = null
+    riverController = null
+    flowerController = null
+    gardenController = null
+    criaturasController = null
   }
 
   showCanvases(gen.done)
 }
 
 function showCanvases(withTexture = false) {
-  background(palette.bg)
+  if (_layersFlattened) {
+    image(flattenedCnv, 0, 0)
+  } else {
+    background(palette.bg)
 
-  image(riverCnv, 0, 0)
-  image(grassCnv, 0, 0)
-  image(cnv, 0, 0)
-  image(beeCnv, 0, 0)
+    image(riverCnv, 0, 0)
+    image(grassCnv, 0, 0)
+    image(cnv, 0, 0)
+    image(beeCnv, 0, 0)
+  }
 
   if (renderingDone && toggleSign) drawSignature()
 
   if (withTexture) {
+    if (!textureCnv) {
+      textureCnv = createGraphics(W, H)
+      textureCnv.pixelDensity(definition)
+      granulateSimple(17.5, true, textureCnv)
+    }
     image(textureCnv, 0, 0)
-    granulateSimple(17.5, true, textureCnv)
   }
 }
 
 function drawSignature() {
+  if (_cachedSignElement) {
+    image(_cachedSignElement, signD.x, signD.y, signD.w, signD.h)
+    return
+  }
+
   // Using a str cuz I want n I can
   const signatureSvgStr = `
     <svg xmlns="http://www.w3.org/2000/svg" id="signature" viewBox="401.711 309.536 418.166 195.633">
@@ -385,6 +451,8 @@ function drawSignature() {
   pe.height = signD.h
 
   img.onload = () => {
+    _cachedSignElement = pe
+    URL.revokeObjectURL(signUrl)
     image(pe, signD.x, signD.y, signD.w, signD.h)
   }
   img.src = signUrl
@@ -420,15 +488,22 @@ function keyTyped() {
     }
 
     toggleTexture = !toggleTexture
-
     preRenderingDone = false
+
     if (toggleTexture) {
       console.log(`🥸 Loading texture, please wait a few seconds...`)
+      
       showCanvases(true)
     } else {
       console.log(`🥸 Removing texture...`)
-      showCanvases()
+
+      if (textureCnv) {
+        textureCnv.remove()
+        textureCnv = null
+      }
+      showCanvases(false)
     }
+
     preRenderingDone = true
   } else if (key === 'f') {
     toggleSign = !toggleSign
@@ -439,9 +514,17 @@ function keyTyped() {
   }
 }
 
+const _ogPoint = { x: 0, y: 0 }
 function pointToOG(x, y) {
-  return {
-    x: map(x, 0, W, 0, originalW),
-    y: map(y, 0, H, 0, originalH),
-  }
+  _ogPoint.x = (x / W) * originalW
+  _ogPoint.y = (y / H) * originalH
+  return _ogPoint
+}
+
+function toOGX(x) {
+  return (x / W) * originalW
+}
+
+function toOGY(y) {
+  return (y / H) * originalH
 }

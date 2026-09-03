@@ -23,7 +23,10 @@ class GrassController {
   setupGrass() {
     this.grassParams.forEach(({ i, j, ...grassData }) => {
       const h = mapController.hMap[i][j]
-      const minL = map(h, 0.305, 1, xRes * 0.275, xRes * 0.105)
+      const minL = Math.max(
+        xRes * 0.05,
+        map(h, 0.305, 1, xRes * 0.275, xRes * 0.105)
+      )
       const maxL = map(h, 0.305, 1, xRes * 0.885, xRes * 1.215)
 
       this.grass.push(
@@ -35,6 +38,9 @@ class GrassController {
         }),
       )
     })
+
+    // Cleanup
+    this.grassParams = [];
   }
 
   *draw(cnv) {
@@ -44,6 +50,9 @@ class GrassController {
       this.grass[i].display(cnv)
     }
     cnv.pop()
+
+    // Cleanup
+    this.grass = []
   }
 }
 
@@ -94,7 +103,7 @@ class Grass {
   setupPens() {
     this.pens = []
 
-    for (let l = this.maxL; l > this.minL; l *= 0.85) {
+    for (let l = this.maxL; l > Math.max(xRes * 0.05, this.minL); l *= 0.85) {
       const swn = map(l, this.minL, this.maxL, 0, 1)
       const sw = lerp(this.sW * 0.03, this.sW, swn)
 
@@ -112,8 +121,8 @@ class Grass {
       const hw = p.w * 0.5
       const l = p.h
 
-      const ll = [createVector(-hw, 0), createVector(-hw, -l)]
-      const rl = [createVector(hw, 0), createVector(hw, -l)]
+      const ll = [{x: -hw, y: 0}, {x: -hw, y: -l}]
+      const rl = [{x: hw, y: 0}, {x: hw, y: -l}]
       if (this.outlined) {
         p.setSW(penSW * 0.194 * (a.length - i))
         p.memoLine(ll[0], ll[1], 0.105)

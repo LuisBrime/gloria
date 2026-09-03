@@ -10,8 +10,6 @@ class Packer {
 
     this.padding = padding
 
-    this.items = []
-
     this.generateGrid()
   }
 
@@ -64,26 +62,35 @@ class Packer {
   }
 
   canAddCircle(x, y, r) {
-    const cToAdd = { x, y, r, t: [] }
-
-    // Out of bounds
     if (
-      cToAdd.x - cToAdd.r < 0 ||
-      cToAdd.x + cToAdd.r > this.w ||
-      cToAdd.y - cToAdd.r < 0 ||
-      cToAdd.y + cToAdd.r > this.h
+      x - r < 0 ||
+      x + r > this.w ||
+      y - r < 0 ||
+      y + r > this.h
     ) {
       return false
     }
 
-    // Collission
-    const adjCells = this.cellsAround(cToAdd.x, cToAdd.y, cToAdd.r)
-    for (const cell of adjCells) {
-      for (const otherC of cell.c) {
-        const d = this.circleDist(cToAdd, otherC)
+    const minI = Math.max(0, Math.floor((x - r - this.padding) / this.xRes))
+    const maxI = Math.min(this.xDivs - 1, Math.floor((x + r + this.padding) / this.xRes))
+    const minJ = Math.max(0, Math.floor((y - r - this.padding) / this.yRes))
+    const maxJ = Math.min(this.yDivs - 1, Math.floor((y + r + this.padding) / this.yRes))
+    const padSq = this.padding * this.padding
 
-        if (d - this.padding * this.padding < 0) {
-          return false
+    for (let i = minI; i <= maxI; i++) {
+      const col = this.grid[i]
+      for (let j = minJ; j <= maxJ; j++) {
+        const cellCircles = col[j].c
+
+        for (let k = 0; k < cellCircles.length; k++) {
+          const otherC = cellCircles[k]
+          const dx = otherC.x - x
+          const dy = otherC.y - y
+          const rs = r + otherC.r
+
+          if (dx * dx + dy * dy - rs * rs - padSq < 0) {
+            return false
+          }
         }
       }
     }
@@ -92,13 +99,17 @@ class Packer {
   }
 
   addCircle(c) {
-    const adjCells = this.cellsAround(c.x, c.y, c.r)
-    adjCells.forEach((cell) => {
-      this.grid[cell.i][cell.j].c.push(c)
-      if (!c.t) c.t = []
-      c.t.push(`${cell.i},${cell.j}`)
-    })
-    this.items.push(c)
+    const minI = Math.max(0, Math.floor((c.x - c.r - this.padding) / this.xRes))
+    const maxI = Math.min(this.xDivs - 1, Math.floor((c.x + c.r + this.padding) / this.xRes))
+    const minJ = Math.max(0, Math.floor((c.y - c.r - this.padding) / this.yRes))
+    const maxJ = Math.min(this.yDivs - 1, Math.floor((c.y + c.r + this.padding) / this.yRes))
+
+    for (let i = minI; i <= maxI; i++) {
+      const col = this.grid[i]
+      for (let j = minJ; j <= maxJ; j++) {
+        col[j].c.push(c)
+      }
+    }
   }
 
   addShape(shapeCircles, actuallyAdd = true) {
@@ -217,9 +228,26 @@ class PackedCircle extends PackedShape {
     this.setupCircles()
   }
 
+  static canPackCircle(packer, x, y, r, circleR = 5) {
+    const prm = TAU * r
+    const nc = Math.ceil(prm / (this.circleR * 2))
+    const step = TAU / nc
+
+    for (let t = 0; t <= TAU; t += step) {
+      const cx = x + r * Math.cos(t)
+      const cy = y + r * Math.sin(t)
+
+      if (!packer.canAddCircle(cx, cy, circleR)) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   setupCircles() {
     const prm = TAU * this.r
-    const nc = ceil(prm / (this.circleR * 2))
+    const nc = Math.ceil(prm / (this.circleR * 2))
 
     for (let t = 0; t <= TAU; t += TAU / nc) {
       this.circles.push({

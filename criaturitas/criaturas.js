@@ -495,9 +495,8 @@ class Catarina extends Criatura {
     for (let i = 0; i < this.bodyPen.memoed.length; i++) {
       const line = this.bodyPen.memoed[i]
 
-      for (let j = 0; j < line.length; j++) {
-        const p = line[j]
-        cnv.vertex(p.x, p.y)
+      for (let j = 0; j < line.length; j += 3) {
+        cnv.vertex(line[j], line[j + 1])
       }
     }
 

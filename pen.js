@@ -9,7 +9,7 @@ class Pen {
 
     this.currentPointIndex = 0
 
-    this.pen = createVector(0, 0)
+    this.pen = {x: 0, y: 0}
 
     this.sW = 0.85
 
@@ -46,29 +46,29 @@ class Pen {
       const dx = target.x - this.pen.x
       const dy = target.y - this.pen.y
 
-      const wobble = createVector(
-        random(0.25, 0.95),
-        random(0.25, 0.95),
-      ).rotate(PI)
-      this.pen.x += wobble.x
-      this.pen.y += wobble.y
+      this.pen.x += -random(0.25, 0.95)
+      this.pen.y += -random(0.25, 0.95)
 
       const np = max(floor(random(4.8, 7.17)), round(random(7, 15) * this.acc))
       const dd = random(0.65, 1)
-      const offset = createVector(0, 0)
+      let offsetAngle = 0
       for (let j = 0; j < np; j++) {
         const r = map(j, 0, np - 1, 0, dd)
-        offset.x = sqrt(random()) * map(r, 0, dd, 0.15, 0.5) * 2
-        offset.rotate(random(TAU))
+        
+        const offsetMg = Math.sqrt(random()) * map(r, 0, dd, 0.15, 0.5) * 2
+        offsetAngle += random(TAU)
+        const offsetX = Math.cos(offsetAngle) * offsetMg
+        const offsetY = Math.sin(offsetAngle) * offsetMg
 
-        this.figureMemoed.push({
-          x: this.pen.x + offset.x + dx * r,
-          y: this.pen.y + offset.y + dy * r,
-          w: this.sW,
-        })
+        this.figureMemoed.push(
+          this.pen.x + offsetX + dx * r,
+          this.pen.y + offsetY + dy * r,
+          this.sW,
+        )
       }
 
-      this.pen = p5.Vector.mult(target, dd)
+      this.pen.x *= dd
+      this.pen.y *= dd
     }
   }
 
@@ -105,7 +105,7 @@ class Pen {
         1,
       )
       const sW = secondNoise * this.sW + this.sW * (dSW + 0.15)
-      linePoints.push({ sW, x: nx, y: ny })
+      linePoints.push(nx, ny, sW)
 
       xo += 0.55
       yo += 0.55
@@ -149,7 +149,7 @@ class Pen {
         1,
       )
       const sW = secondNoise * this.sW + this.sW * (dSW + 0.075)
-      ellipsePoints.push({ sW, x: nx, y: ny })
+      ellipsePoints.push(nx, ny, sW)
 
       xo += 0.55
       yo += 0.55
@@ -164,11 +164,10 @@ class Pen {
 
     for (let i = 0; i < this.memoed.length; i++) {
       const points = this.memoed[i]
-      for (let j = 0; j < points.length; j++) {
+      for (let j = 0; j < points.length; j += 3) {
         cnv.push()
-        const { x, y, sW } = points[j]
-        cnv.translate(x, y)
-        cnv.strokeWeight(sW)
+        cnv.translate(points[j], points[j + 1])
+        cnv.strokeWeight(points[j + 2])
         cnv.point(0, 0)
         cnv.pop()
       }
@@ -184,13 +183,12 @@ class Pen {
     for (let i = 0; i < this.memoed.length; i++) {
       const points = this.memoed[i]
 
-      for (let j = 0; j < points.length; j++) {
-        if (!((j + 1) % floor(maxYN))) yield 0
+      for (let j = 0; j < points.length; j += 3) {
+        if (!((j / 3 + 1) % Math.floor(maxYN))) yield 0
 
         cnv.push()
-        const { x, y, sW } = points[j]
-        cnv.translate(x, y)
-        cnv.strokeWeight(sW)
+        cnv.translate(points[j], points[j + 1])
+        cnv.strokeWeight(points[j + 2])
         cnv.point(0, 0)
         cnv.pop()
       }
@@ -204,11 +202,10 @@ class Pen {
     cnv.noStroke()
     cnv.fill(this.c)
 
-    for (let i = 0; i < this.figureMemoed.length; i++) {
-      const { x, y, w } = this.figureMemoed[i]
+    for (let i = 0; i < this.figureMemoed.length; i += 3) {
       cnv.push()
-      cnv.translate(x, y)
-      cnv.circle(0, 0, w)
+      cnv.translate(this.figureMemoed[i], this.figureMemoed[i + 1])
+      cnv.circle(0, 0, this.figureMemoed[i + 2])
       cnv.pop()
     }
 
@@ -220,13 +217,12 @@ class Pen {
     cnv.noStroke()
     cnv.fill(this.c)
 
-    for (let i = 0; i < this.figureMemoed.length; i++) {
-      if (!((i + 1) % floor(maxYN))) yield 0
+    for (let i = 0; i < this.figureMemoed.length; i += 3) {
+      if (!((i / 3 + 1) % Math.floor(maxYN))) yield 0
 
-      const { x, y, w } = this.figureMemoed[i]
       cnv.push()
-      cnv.translate(x, y)
-      cnv.circle(0, 0, w)
+      cnv.translate(this.figureMemoed[i], this.figureMemoed[i + 1])
+      cnv.circle(0, 0, this.figureMemoed[i + 2])
       cnv.pop()
     }
 
@@ -279,7 +275,7 @@ class RectPen extends Pen {
       const y = lerp(p1.y, p2.y, dt)
       const { x: ogX, y: ogY } = pointToOG(x, y)
       const t = noisex.simplex2(ogX * 0.06, ogY * 0.06) * TAU
-      return createVector(x + cos(t), y + sin(t))
+      return {x: x + cos(t), y: y + sin(t)}
     }
 
     for (let i = 0; i < np; i++) {

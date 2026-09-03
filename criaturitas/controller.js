@@ -102,6 +102,13 @@ class Criaturitas {
     for (const _ of this.drawBees(cnv, deleteFromCnvs)) {
       yield 2
     }
+
+    // Cleanup
+    this.criaturas = {
+      [CriaturaType.abeja]: [],
+      [CriaturaType.catarina]: [],
+      [CriaturaType.polilla]: [],
+    }
   }
 
   *drawBees(cnv, deleteFromCnvs = []) {

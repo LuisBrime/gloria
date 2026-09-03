@@ -24,6 +24,15 @@ class MapController {
       -PI * 0.25,
     ])
 
+    this._gghBuffer = [0, 0, 0]
+    this._nBuffer = {
+      x: 0,
+      y: 0,
+      heading: function() {
+        return Math.atan2(this.x, this.y)
+      },
+    }
+
     this.setupHeightMap()
     this.setupLightMap()
   }
@@ -41,7 +50,7 @@ class MapController {
         const y = map(j * this.yRes, 0, this.h, 0, originalH)
 
         const n =
-          floor(detailedNoise.noise(x + xoff, y + yoff) * 100000) / 100000
+          Math.floor(detailedNoise.noise(x + xoff, y + yoff) * 100000) / 100000
 
         this.hMap[i].push(n)
         this.eMap[i].push(0.1)
@@ -55,14 +64,16 @@ class MapController {
   }
 
   hMapN(i, j) {
-    const x = i * this.xRes
-    const y = j * this.yRes
     const t = this.hMapT(i, j)
 
-    const nx = x + this.xRes * cos(t)
-    const ny = y + this.yRes * sin(t)
+    const dx = -this.yRes * Math.sin(t)
+    const dy = this.xRes * Math.cos(t)
+    const l = Math.hypot(dx, dy) || 1
 
-    return createVector(-1 * (ny - y), nx - x).normalize()
+    this._nBuffer.x = dx / l
+    this._nBuffer.y = dy / l
+
+    return this._nBuffer
   }
 
   hMapT(i, j) {
@@ -71,13 +82,26 @@ class MapController {
   }
 
   setupLightMap() {
+    const starX = mainStar.x
+    const starY = mainStar.y
+
     for (let i = 0; i < this.cols; i++) {
       this.lMap[i] = []
+      const vx = i * this.xRes
+
       for (let j = 0; j < this.rows; j++) {
-        const v = createVector(i * this.xRes, j * this.yRes)
-        const l = p5.Vector.sub(mainStar, v).normalize()
+        const vy = j * this.yRes
+
+        const dx = starX - vx
+        const dy = starY - vy
+        const dl = Math.hypot(dx, dy) || 1
+
+        const nx = dx / dl
+        const ny = dy / dl
+
         const hN = this.hMapN(i, j)
-        this.lMap[i].push(p5.Vector.dot(hN, l))
+        const dot = hN.x * nx + hN.y * ny
+        this.lMap[i].push(dot)
       }
     }
   }
@@ -95,19 +119,24 @@ class MapController {
     const g = 4
     const evaporateS = 0.5 / l
 
-    for (let d = 0; d < (originalW * originalH) * 0.885; d++) {
+    const totalDrops = Math.floor(originalW * originalH * 0.885)
+
+    for (let d = 0; d < totalDrops; d++) {
       const r1 = random()
       const r2 = random()
-      const p = createVector(random(this.w), random(this.h))
-      const dir = createVector(0, 0)
+
+      let px = random(this.w)
+      let py = random(this.h)
+      let dirX = 0
+      let dirY = 0
 
       let s = initialS
       let wv = initialWV
       let sediment = 0
 
       for (let i = 0; i < maxDI; i++) {
-        const nX = round(p.x)
-        const nY = round(p.y)
+        const nX = Math.round(px)
+        const nY = Math.round(py)
 
         if (nX < 0 || nX >= this.cols - 1 || nY < 0 || nY >= this.rows - 1) {
           break
@@ -117,32 +146,44 @@ class MapController {
         const nYP = nY * this.yRes
 
         const offsetX = constrain(
-          map(p.x > nXP ? p.x - nXP : nXP - p.x, 0, this.xRes - 1, 0, 1),
+          map(px > nXP ? px - nXP : nXP - px, 0, this.xRes - 1, 0, 1),
           0,
           1,
         )
         const offsetY = constrain(
-          map(p.y > nYP ? p.y - nYP : nYP - p.y, 0, this.yRes - 1, 0, 1),
+          map(py > nYP ? py - nYP : nYP - py, 0, this.yRes - 1, 0, 1),
           0,
           1,
         )
-        const ggh = this.heightAndGradient(nXP, nYP)
 
-        if (ggh.some((x) => isNaN(x))) break
+        this.heightAndGradient(nXP, nYP, this._gghBuffer)
+        const ggh0 = this._gghBuffer[0]
+        const ggh1 = this._gghBuffer[1]
+        const ggh2 = this._gghBuffer[2]
 
-        dir.x = (dir.x * inertia) - ggh[0] * (1 - inertia)
-        dir.y = (dir.y * inertia) - ggh[1] * (1 - inertia)
-        dir.normalize()
-        p.add(dir)
+        if (isNaN(ggh0) || isNaN(ggh1) || isNaN(ggh2)) break
 
-        if (dir.x === 0 && dir.y === 0) break
-        if (p.x < 0 || p.x >= this.w || p.y < 0 || p.y >= this.h) break
+        dirX = dirX * inertia - ggh0 * (1 - inertia)
+        dirY = dirY * inertia - ggh1 * (1 - inertia)
+        
+        const dirL = Math.hypot(dirX, dirY)
+        if (dirL > 0) {
+          dirX /= dirL
+          dirY /= dirL
+        }
 
-        const nH = this.heightAndGradient(p.x, p.y)[2]
+        px += dirX
+        py += dirY
+
+        if (dirX === 0 && dirY === 0) break
+        if (px < 0 || px >= this.w || py < 0 || py >= this.h) break
+
+        this.heightAndGradient(px, py, this._gghBuffer)
+        const nH = this._gghBuffer[2]
         if (isNaN(nH)) break
 
-        const dH = nH - ggh[2]
-        const sedimentCap = max(
+        const dH = nH - ggh2
+        const sedimentCap = Math.max(
           -dH * s * wv * sedimentCapacityFactor,
           minSedimentCapacity,
         )
@@ -150,7 +191,7 @@ class MapController {
         if (sediment > sedimentCap || dH > 0) {
           const amountToDeposit =
             dH > 0
-              ? min(dH, sediment)
+              ? Math.min(dH, sediment)
               : (sediment - sedimentCap) * depositS * this.dMap[nX][nY]
           sediment -= amountToDeposit
 
@@ -166,7 +207,7 @@ class MapController {
         } else {
           for (let dri = 0; dri < 4; dri++) {
             for (let drj = 0; drj < 4; drj++) {
-              let influence = 1 / sq(4 + 1)
+              let influence = 1 / 25
 
               let _nX = nX + dri
               let _nY = nY + drj
@@ -184,7 +225,7 @@ class MapController {
               }
 
               const amountToErode =
-                min((sedimentCap - sediment) * erodeS, -dH) *
+                Math.min((sedimentCap - sediment) * erodeS, -dH) *
                 this.eMap[_nX][_nY] *
                 influence
               const wErodeAmount = amountToErode * 0.75
@@ -199,7 +240,7 @@ class MapController {
           }
         }
 
-        s = sqrt(s * s + abs(dH) * g)
+        s = Math.sqrt(s * s + Math.abs(dH) * g)
         wv *= 1 - evaporateS
 
         if (wv < 0.0001) break
@@ -207,11 +248,14 @@ class MapController {
     }
   }
 
-  heightAndGradient(x, y) {
-    const xi = floor(x / this.xRes)
-    const yi = floor(y / this.yRes)
+  heightAndGradient(x, y, out = [0, 0, 0]) {
+    const xi = Math.floor(x / this.xRes)
+    const yi = Math.floor(y / this.yRes)
     if (xi < 0 || xi >= this.cols - 1 || yi < 0 || yi >= this.rows - 1) {
-      return [0, 0, 0]
+      out[0] = 0
+      out[1] = 0
+      out[2] = 0
+      return out
     }
 
     const xf = constrain(map(x - xi * this.xRes, 0, this.xRes - 1, 0, 1), 0, 1)
@@ -230,7 +274,15 @@ class MapController {
       hSW * (1 - xf) * yf +
       hSE * xf * yf
 
-    return [gX, gY, ht]
+    out[0] = gX
+    out[1] = gY
+    out[2] = ht
+    return out
+  }
+
+  cleanup() {
+    this.eMap = null
+    this.dMap = null
   }
 
   blurHMap(it = 1, stg = 0.2) {

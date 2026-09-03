@@ -85,7 +85,7 @@ class EventHandler {
       }
 
       const c = criaturasCsController.birthCreature(cType, nx, ny, 0, w, h)
-      c.setT(p5.Vector.sub(closestV, c.pos).heading() + rDR * drPv)
+      c.setT(Math.atan2(closestV.y - c.pos.y, closestV.x - c.pos.x))
 
       if (c.canPack(packer)) {
         c.pack(packer)
