@@ -132,8 +132,8 @@ class Grass {
         p.memoLine(rl[0], rl[1], 0.105)
       } else {
         p.setAcc(0.45 + 0.25 * (a.length - i))
-        p.setDensity(0.895)
-        p.setSW(penSW * 0.0225 * (a.length - i))
+        p.setDensity(0.915)
+        p.setSW(penSW * 0.0589 * (a.length - i))
         p.memoDisplay()
 
         borderPen.setSW(penSW * 0.148 * (a.length - i))
