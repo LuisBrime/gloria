@@ -18,13 +18,7 @@ class Packer {
     for (let i = 0; i < this.xDivs; i++) {
       this.grid[i] = []
       for (let j = 0; j < this.yDivs; j++) {
-        this.grid[i].push({
-          i,
-          j,
-          x: i * this.xRes,
-          y: j * this.yRes,
-          c: [],
-        })
+        this.grid[i][j] = []
       }
     }
   }
@@ -34,31 +28,6 @@ class Packer {
     const dy = c2.y - c1.y
     const rs = c1.r + c2.r
     return dx * dx + dy * dy - rs * rs
-  }
-
-  cell(x, y) {
-    return this.grid[floor(x / this.xRes)][floor(y / this.yRes)]
-  }
-
-  cellsAround(x, y, r) {
-    const tl = [
-      floor((x - r - this.padding) / this.xRes),
-      floor((y - r - this.padding) / this.yRes),
-    ]
-    const br = [
-      floor((x + r + this.padding) / this.xRes),
-      floor((y + r + this.padding) / this.yRes),
-    ]
-
-    const cells = []
-    for (let i = tl[0]; i <= br[0]; i++) {
-      for (let j = tl[1]; j <= br[1]; j++) {
-        if (i < 0 || i >= this.xDivs || j < 0 || j >= this.yDivs) continue
-        cells.push(this.grid[i][j])
-      }
-    }
-
-    return cells
   }
 
   canAddCircle(x, y, r) {
@@ -78,12 +47,10 @@ class Packer {
     const padSq = this.padding * this.padding
 
     for (let i = minI; i <= maxI; i++) {
-      const col = this.grid[i]
       for (let j = minJ; j <= maxJ; j++) {
-        const cellCircles = col[j].c
 
-        for (let k = 0; k < cellCircles.length; k++) {
-          const otherC = cellCircles[k]
+        for (let k = 0; k < this.grid[i][j].length; k++) {
+          const otherC = this.grid[i][j][k]
           const dx = otherC.x - x
           const dy = otherC.y - y
           const rs = r + otherC.r
@@ -105,9 +72,8 @@ class Packer {
     const maxJ = Math.min(this.yDivs - 1, Math.floor((c.y + c.r + this.padding) / this.yRes))
 
     for (let i = minI; i <= maxI; i++) {
-      const col = this.grid[i]
       for (let j = minJ; j <= maxJ; j++) {
-        col[j].c.push(c)
+        this.grid[i][j].push(c)
       }
     }
   }

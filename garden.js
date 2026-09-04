@@ -95,11 +95,14 @@ class GardenController {
         FlowerType.peony,
       ])
 
+      const outerR = currentR + this.anilloW
       anillos.push({
         flowerType,
         r: currentR,
         x: anilladoX,
         y: anilladoY,
+        innerRSq: currentR * currentR,
+        outerRSq: outerR * outerR,
       })
 
       currentR += this.anilloW + anilloM
@@ -119,15 +122,15 @@ class GardenController {
     this.noiseFlowerType = (x, y) => {
       let flowerType = FlowerType.basic
 
-      this.anillos.forEach((a) => {
+      for (let i = 0; i < this.anillos.length; i++) {
+        const a = this.anillos[i]
         const dr = sq(x - a.x) + sq(y - a.y)
-        const outerR = a.r + this.anilloW
 
-        if (dr > a.r * a.r && dr <= outerR * outerR) {
+        if (dr > a.innerRSq && dr <= a.outerRSq) {
           flowerType = a.flowerType
-          return
+          break
         }
-      })
+      }
 
       return flowerType
     }

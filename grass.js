@@ -21,8 +21,9 @@ class GrassController {
   }
 
   setupGrass() {
-    this.grassParams.forEach(({ i, j, ...grassData }) => {
-      const h = mapController.hMap[i][j]
+    for (let i = 0; i < this.grassParams.length; i++) {
+      const gp = this.grassParams[i]
+      const h = mapController.hMap[gp.i][gp.j]
       const minL = Math.max(
         xRes * 0.05,
         map(h, 0.305, 1, xRes * 0.275, xRes * 0.105)
@@ -30,14 +31,19 @@ class GrassController {
       const maxL = map(h, 0.305, 1, xRes * 0.885, xRes * 1.215)
 
       this.grass.push(
-        new Grass({
-          ...grassData,
+        new Grass(
+          gp.x,
+          gp.y,
+          gp.t,
+          gp.c,
+          this.grassSW,
+          gp.outlined,
+          gp.dir,
           minL,
           maxL,
-          sW: this.grassSW,
-        }),
+        ),
       )
-    })
+    }
 
     // Cleanup
     this.grassParams = [];
@@ -59,7 +65,7 @@ class GrassController {
 }
 
 class Grass {
-  constructor({
+  constructor(
     x,
     y,
     t,
@@ -69,7 +75,7 @@ class Grass {
     dir = 1,
     minL = xRes * 0.05,
     maxL = xRes * 0.95,
-  }) {
+  ) {
     this.p = { x, y }
     this.t = t
     this.c = c

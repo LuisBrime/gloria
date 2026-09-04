@@ -54,12 +54,14 @@ class QuadTree {
     this.se = new QuadTree(new Quad(x + hw, y + hh, hw, hh))
     this.sw = new QuadTree(new Quad(x, y + hh, hw, hh))
 
-    Object.keys(this.capacities).forEach((k) => {
+    const capacitiesKs = Object.keys(this.capacities)
+    for (let i = 0; i < capacitiesKs.length; i++) {
+      const k = capacitiesKs[i]
       this.ne.setCapacityKey(k, this.capacities[k].capacity)
       this.nw.setCapacityKey(k, this.capacities[k].capacity)
       this.se.setCapacityKey(k, this.capacities[k].capacity)
       this.sw.setCapacityKey(k, this.capacities[k].capacity)
-    })
+    }
   }
 
   add(pos, key, shouldBranch = true) {
@@ -90,9 +92,10 @@ class QuadTree {
     if (!(key in this.capacities)) return
 
     const { references } = this.capacities[key]
-    references.forEach((ref) => {
+    for (let i = 0; i < references.length; i++) {
+      const ref = references[i]
       if (range.contains(ref)) found.push(ref)
-    })
+    }
 
     if (this.divided) {
       this.ne.query(range, key, found)

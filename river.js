@@ -139,7 +139,8 @@ class River {
   }
 
   wrapWater() {
-    this.waterDots.forEach((w) => {
+    for (let wi = 0; wi < this.waterDots.length; wi++) {
+      const w = this.waterDots[wi]
       const vertices = []
 
       for (let t = 0; t <= TAU; t += TAU / 20) {
@@ -149,21 +150,24 @@ class River {
       }
 
       w.vertices = vertices
-    })
+    }
 
     const isFlowing =
       this.flowType === RiverFlowType.fluyente ||
       this.flowType === RiverFlowType.aceptance
     const yFactor = isFlowing ? 0.61 : 0.06
 
-    this.waterDots.forEach((w) => {
+    for (let wi = 0; wi < this.waterDots.length; wi++) {
+      const w = this.waterDots[wi]
       const wx = toOGX(w.x)
       const wy = toOGY(w.y)
 
       let nVOff = 0
       let dvn = random(15, 500)
 
-      w.vertices.forEach((v) => {
+      for (let vi = 0; vi < w.vertices.length; vi++) {
+        const v = w.vertices[vi]
+
         for (let i = 0; i < 7; i++) {
           const n = detailedNoise.noise(wx + nVOff, wy + nVOff, -1, 1)
           v.x += n * w.r * 0.65
@@ -171,13 +175,15 @@ class River {
         }
 
         nVOff += dvn
-      })
-    })
+      }
+    }
 
     if (isFlowing) {
-      this.waterDots.forEach((w) => {
-        const i = floor(w.x / mapController.xRes)
-        const j = floor(w.y / mapController.yRes)
+      for (let wi = 0; wi < this.waterDots.length; wi++) {
+        const w = this.waterDots[wi]
+        const i = Math.floor(w.x / mapController.xRes)
+        const j = Math.floor(w.y / mapController.yRes)
+
         let t
         if (this.flowType === RiverFlowType.fluyente) {
           t = mapController.hMapT(i, j)
@@ -185,11 +191,14 @@ class River {
           t = mapController.hMapN(i, j).heading()
         }
 
-        w.vertices.forEach((v) => {
-          v.x = v.x * cos(t) - v.y * sin(t)
-          v.y = v.y * cos(t) + v.x * sin(t)
-        })
-      })
+        const cost = Math.cos(t)
+        const sint = Math.sin(t)
+        for (let vi = 0; vi < w.vertices.length; vi++) {
+          const v = w.vertices[vi]
+          v.x = v.x * cost - v.y * sint
+          v.y = v.y * cost + v.x * sint
+        }
+      }
     }
 
     // Pre calc pen points to draw if needed

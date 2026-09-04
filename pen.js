@@ -79,15 +79,18 @@ class Pen {
       round(random(4, 10.2) / this.density),
     )
 
-    const [dx, dy] = [(end.x - start.x) / steps, (end.y - start.y) / steps]
+    const dx = (end.x - start.x) / steps
+    const dy = (end.y - start.y) / steps
 
     for (let i = 0; i < steps; i++) {
-      const [nx, ny] = [start.x + i * dx, start.y + i * dy]
-      let [xo, yo] = [5, 5]
+      const nx = start.x + i * dx
+      const ny = start.y + i * dy
+      let xo = 5
+      let yo = 5
 
-      const { x: nOGX, y: nOGY } = pointToOG(nx, ny)
+      const pog = pointToOG(nx, ny)
       const firstNoise = map(
-        noisex.simplex2(nOGX * 0.68 + xo, nOGY * 0.68 + yo),
+        noisex.simplex2(pog.x * 0.68 + xo, pog.y * 0.68 + yo),
         -0.92,
         1,
         0,
@@ -98,7 +101,7 @@ class Pen {
       }
 
       const secondNoise = map(
-        noisex.simplex2(nOGX * 0.15 + xo, nOGY * 0.15 + yo),
+        noisex.simplex2(pog.x * 0.15 + xo, pog.y * 0.15 + yo),
         -0.75,
         1,
         0,
@@ -120,18 +123,21 @@ class Pen {
 
   memoEllipse(pos, rx, ry, eP = 0.275, dSW = 0.15) {
     const ellipsePoints = []
-    let [xo, yo] = [5, 5]
+    let xo = 5
+    let yo = 5
 
     const np = max(
       floor(random(25, 38.8)),
       round(random(35, 50) / this.density),
     )
     for (let t = 0; t <= TAU; t += TAU / np) {
-      const [nx, ny] = [pos.x + rx * cos(t), pos.y + ry * sin(t)]
-      const { x: nOGX, y: nOGY } = pointToOG(nx, ny)
+      const nx = pos.x + rx * cos(t)
+      const ny = pos.y + ry * sin(t)
+
+      const pog = pointToOG(nx, ny)
 
       const firstNoise = map(
-        noisex.simplex2(nOGX * 0.68 + xo, nOGY * 0.68 + yo),
+        noisex.simplex2(pog.x * 0.68 + xo, pog.y * 0.68 + yo),
         -0.92,
         1,
         0,
@@ -142,7 +148,7 @@ class Pen {
       }
 
       const secondNoise = map(
-        noisex.simplex2(nOGX * 0.15 + xo, nOGY * 0.15 + yo),
+        noisex.simplex2(pog.x * 0.15 + xo, pog.y * 0.15 + yo),
         -0.75,
         1,
         0,
@@ -244,8 +250,8 @@ class OvalPen extends Pen {
       const dx = map(i, 0, np - 1, -this.rx / 2, this.rx / 2)
       const ht = (this.ry / 2) * sqrt(1 - sq(dx) / sq(this.rx / 2))
 
-      this.points.push(createVector(dx, ht))
-      this.points.push(createVector(dx, -ht))
+      this.points.push({ x: dx, y: ht })
+      this.points.push({ x: dx, y: -ht })
     }
   }
 }

@@ -64,7 +64,6 @@ class EventHandler {
     const closestF = this.closestFlower(x, y, nearFlowers)
     if (!closestF) return []
 
-    const closestV = createVector(closestF.x, closestF.y)
     const nCs = floor(random(4, 9))
     const danceR = map(nCs, 4, 8, w * 1.25, w * 1.95)
     const addedCs = []
@@ -77,15 +76,15 @@ class EventHandler {
     let drPv = 1
     for (let dt = 0; dt < TAU; dt += TAU / nCs) {
       const dp = random(0.885, 1.1)
-      const nx = closestV.x + danceR * cos(dt) * dp
-      const ny = closestV.y + danceR * sin(dt) * dp
+      const nx = closestF.x + danceR * cos(dt) * dp
+      const ny = closestF.y + danceR * sin(dt) * dp
 
       if (!criaturasCsController.shouldPlaceWConstrains(nx, ny, cType)) {
         continue
       }
 
       const c = criaturasCsController.birthCreature(cType, nx, ny, 0, w, h)
-      c.setT(Math.atan2(closestV.y - c.pos.y, closestV.x - c.pos.x))
+      c.setT(Math.atan2(closestF.y - c.pos.y, closestF.x - c.pos.x))
 
       if (c.canPack(packer)) {
         c.pack(packer)
