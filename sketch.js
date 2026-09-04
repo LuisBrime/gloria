@@ -201,6 +201,17 @@ function setupDrawingData() {
     'has creatures': criaturasController.totalCriaturas > 0,
     'has events': criaturasController.hasEvents,
   })
+  window.parent.postMessage({
+    type: 'SKETCH_FEATURES',
+    features: {
+      palette: palette.name,
+      flowerSpacing: flowerSpacingType,
+      gardenType,
+      riverFlowType,
+      hasCreatures: criaturasController.totalCriaturas > 0,
+      hasEvents: criaturasController.hasEvents,
+    },
+  });
 
   p5grain.setup()
 }
