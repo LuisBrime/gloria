@@ -3,6 +3,11 @@ const originalH = 1080
 let W
 let H
 let ratio
+
+const GRID_CELL_RATIO = 0.0035
+const MAP_CELL_RATIO = GRID_CELL_RATIO * 8
+const FINE_GRID_DIVS = Math.floor(1 / GRID_CELL_RATIO)
+const MAP_GRID_DIVS = Math.floor(1 / MAP_CELL_RATIO)
 const WATER_NOISE_LIMIT = 0.3811875
 
 let nSeed, rSeed
@@ -119,15 +124,15 @@ function globalSetup() {
 }
 
 function setupGlobalVariables() {
-  ogXRes = originalW * 0.0035
-  ogYRes = originalH * 0.0035
+  ogXRes = originalW * GRID_CELL_RATIO
+  ogYRes = originalH * GRID_CELL_RATIO
 
   penSW = W * 0.0005
 
-  xRes = W * 0.0035
-  rows = floor(W / xRes) + 1
-  yRes = H * 0.0035
-  cols = floor(H / yRes) + 1
+  xRes = W / FINE_GRID_DIVS
+  yRes = H / FINE_GRID_DIVS
+  rows = FINE_GRID_DIVS + 1
+  cols = FINE_GRID_DIVS + 1
 
   displayMarginX = [W * 0.05, W * 0.95]
   displayMarginY = [H * 0.05, H * 0.95]
@@ -154,9 +159,9 @@ function setupGlobalVariables() {
 function setupControllers() {
   detailedNoise = new DetailedNoise()
 
-  mapController = new MapController(W, H, xRes * 8, yRes * 8)
-  mapController.erodeHMap()
-  mapController.erodeHMap()
+  const mapXRes = W / MAP_GRID_DIVS
+  const mapYRes = H / MAP_GRID_DIVS
+  mapController = new MapController(W, H, mapXRes, mapYRes)
   mapController.erodeHMap()
   mapController.cleanup()
   mapController.blurHMap()

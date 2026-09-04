@@ -77,7 +77,7 @@ class Flowers {
   }
 
   *drawFlowers(canva) {
-    const yieldBatch = Math.max(1, Math.floor(rows * 0.02))
+    const yieldBatch = Math.max(4, Math.floor(this.flowers.length / 25))
 
     for (let i = 0; i < this.flowers.length; i++) {
       if (i !== 0 && i % yieldBatch === 0) yield 0
@@ -778,7 +778,7 @@ class TulipFlower extends AFlower {
       const { x: ogX, y: ogY } = pointToOG(this.x, this.y)
       const tv = p5.Vector.fromAngle(
         noisex.simplex2(ogX * 0.6, ogY * 0.6) * TAU,
-      ).mult(random(0.8, 1.2))
+      ).mult(xRes * random(0.28, 0.5))
 
       const rV = {x: dxp + tv.x, y: dy + tv.y}
       this.petalPoints.push(rV)

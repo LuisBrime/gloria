@@ -5,8 +5,8 @@ class MapController {
     this.xRes = xRes
     this.yRes = yRes
 
-    this.cols = floor(w / xRes) + 1
-    this.rows = floor(h / yRes) + 1
+    this.cols = MAP_GRID_DIVS + 1
+    this.rows = MAP_GRID_DIVS + 1
 
     this.hMap = []
     this.eMap = []
@@ -119,14 +119,14 @@ class MapController {
     const g = 4
     const evaporateS = 0.5 / l
 
-    const totalDrops = Math.floor(originalW * originalH * 0.885)
+    const totalDrops = Math.floor(30_000 * l)
 
     for (let d = 0; d < totalDrops; d++) {
       const r1 = random()
       const r2 = random()
 
-      let px = random(this.w)
-      let py = random(this.h)
+      let gx = random(this.cols - 1)
+      let gy = random(this.rows - 1)
       let dirX = 0
       let dirY = 0
 
@@ -135,28 +135,17 @@ class MapController {
       let sediment = 0
 
       for (let i = 0; i < maxDI; i++) {
-        const nX = Math.round(px)
-        const nY = Math.round(py)
+        const nX = Math.round(gx)
+        const nY = Math.round(gy)
 
         if (nX < 0 || nX >= this.cols - 1 || nY < 0 || nY >= this.rows - 1) {
           break
         }
 
-        const nXP = nX * this.xRes
-        const nYP = nY * this.yRes
+        const offsetX = gx - nX
+        const offsetY = gy - nY
 
-        const offsetX = constrain(
-          map(px > nXP ? px - nXP : nXP - px, 0, this.xRes - 1, 0, 1),
-          0,
-          1,
-        )
-        const offsetY = constrain(
-          map(py > nYP ? py - nYP : nYP - py, 0, this.yRes - 1, 0, 1),
-          0,
-          1,
-        )
-
-        this.heightAndGradient(nXP, nYP, this._gghBuffer)
+        this.heightAndGradient(nX * this.xRes, nY * this.yRes, this._gghBuffer)
         const ggh0 = this._gghBuffer[0]
         const ggh1 = this._gghBuffer[1]
         const ggh2 = this._gghBuffer[2]
@@ -172,13 +161,13 @@ class MapController {
           dirY /= dirL
         }
 
-        px += dirX
-        py += dirY
+        gx += dirX * 0.5
+        gy += dirY * 0.5
 
         if (dirX === 0 && dirY === 0) break
-        if (px < 0 || px >= this.w || py < 0 || py >= this.h) break
+        if (gx < 0 || gx >= this.cols - 1 || gy < 0 || gy >= this.rows - 1) break
 
-        this.heightAndGradient(px, py, this._gghBuffer)
+        this.heightAndGradient(gx * this.xRes, gy * this.yRes, this._gghBuffer)
         const nH = this._gghBuffer[2]
         if (isNaN(nH)) break
 
@@ -209,11 +198,8 @@ class MapController {
             for (let drj = 0; drj < 4; drj++) {
               let influence = 1 / 25
 
-              let _nX = nX + dri
-              let _nY = nY + drj
-
-              if (r1 < 0.5) _nX = nX - dri
-              if (r2 < 0.5) _nY = nY - drj
+              let _nX = r1 < 0.5 ? nX - dri : nX + dri
+              let _nY = r2 < 0.5 ? nY - drj : nY + drj
 
               if (
                 _nX < 0 ||

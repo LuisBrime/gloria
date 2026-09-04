@@ -6,7 +6,7 @@ class River {
     this.packer = new Packer(W, H, xRes * 1.5, yRes * 1.5, xRes * 0.05)
 
     this.waterDots = []
-    this.reflectionTreshold = 0.03505
+    this.reflectionTreshold = 0.505
     this.sizeDR = random(0.035, 0.25)
 
     this.flowType = riverFlowType
@@ -20,13 +20,13 @@ class River {
 
     while (currentSize < this.maxWaterSize) {
       const r = currentSize / 2
-      const cr = Math.min(r * 0.33, 2)
+      const cr = Math.min(r * 0.33, xRes * 0.35)
       canAdd = PackedCircle.canPackCircle(this.packer, x, y, r, cr)
 
       if (!canAdd && lastValidR === null) return false
 
       if (!canAdd && lastValidR !== null) {
-        const lastCR = Math.min(lastValidR * 0.33, 2)
+        const lastCR = Math.min(lastValidR * 0.33, xRes * 0.35)
         const pc = new PackedCircle(x, y, lastValidR, lastCR)
 
         this.packer.addShape(pc.circles)
@@ -40,7 +40,7 @@ class River {
     }
 
     if (canAdd && lastValidR !== null) {
-      const lastCR = Math.min(lastValidR * 0.33, 2)
+      const lastCR = Math.min(lastValidR * 0.33, xRes * 0.35)
       const pc = new PackedCircle(x, y, lastValidR, lastCR)
       this.packer.addShape(pc.circles)
       this.waterDots.push({ x, y, r: lastValidR, packed: pc })
@@ -61,7 +61,7 @@ class River {
       const filled = random() < 0.1345
 
       const n = mapController.hMap[xMi][yMi]
-      const dN = abs(0.38095 - n)
+      const dN = abs((WATER_NOISE_LIMIT * 0.998) - n)
       let isReflection = false
       if (dN < this.reflectionTreshold) {
         const reflectedC = this.getReflectionColor(w, l, filled, flowerQuadTree)

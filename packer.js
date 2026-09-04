@@ -220,7 +220,7 @@ class PackedRect extends PackedShape {
 }
 
 class PackedCircle extends PackedShape {
-  constructor(x, y, r, circleR = 5) {
+  constructor(x, y, r, circleR) {
     super(x, y, 0, circleR)
 
     this.r = r
@@ -228,9 +228,9 @@ class PackedCircle extends PackedShape {
     this.setupCircles()
   }
 
-  static canPackCircle(packer, x, y, r, circleR = 5) {
+  static canPackCircle(packer, x, y, r, circleR) {
     const prm = TAU * r
-    const nc = Math.ceil(prm / (this.circleR * 2))
+    const nc = Math.ceil(prm / (circleR * 2))
     const step = TAU / nc
 
     for (let t = 0; t <= TAU; t += step) {

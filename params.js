@@ -73,15 +73,15 @@ function setupParams() {
   switch (flowerSpacingType) {
     case FlowerSpacingType.near:
       flowerPadding = random(xRes * 2, xRes * 3.5)
-      reflectionCap = floor(random(10, 16))
+      reflectionCap = floor(random(12, 19))
       break
     case FlowerSpacingType.far:
       flowerPadding = random(xRes * 5.8, xRes * 8.85)
-      reflectionCap = floor(random(7, 11))
+      reflectionCap = floor(random(7, 12))
       break
     case FlowerSpacingType.whereverYouAre:
       flowerPadding = random(xRes * 9, xRes * 13)
-      reflectionCap = floor(random(4, 8))
+      reflectionCap = floor(random(4, 9))
       break
   }
 

@@ -44,9 +44,11 @@ class GrassController {
   }
 
   *draw(cnv) {
+    const yieldBatch = Math.max(10, Math.floor(this.grass.length / 30))
+
     cnv.push()
     for (let i = 0; i < this.grass.length; i++) {
-      if (i !== 0 && !(i % int(rows * 0.05))) yield 0
+      if (i !== 0 && i % yieldBatch === 0) yield 0
       this.grass[i].display(cnv)
     }
     cnv.pop()
@@ -103,7 +105,8 @@ class Grass {
   setupPens() {
     this.pens = []
 
-    for (let l = this.maxL; l > Math.max(xRes * 0.05, this.minL); l *= 0.85) {
+    const lmt = Math.max(xRes * 0.025, this.minL)
+    for (let l = this.maxL; l > lmt; l *= 0.85) {
       const swn = map(l, this.minL, this.maxL, 0, 1)
       const sw = lerp(this.sW * 0.03, this.sW, swn)
 

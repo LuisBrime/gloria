@@ -1,7 +1,7 @@
 class DetailedNoise {
   constructor() {
     const ms = random(0.15, 0.46)
-    const s = map(ms, 0, 0.61, 0.8, 0.35)
+    const s = map(ms, 0, 0.61, 0.8, 0.45)
 
     this.noiseD = [
       [0.6, ms],

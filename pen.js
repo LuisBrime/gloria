@@ -46,8 +46,8 @@ class Pen {
       const dx = target.x - this.pen.x
       const dy = target.y - this.pen.y
 
-      this.pen.x += -random(0.25, 0.95)
-      this.pen.y += -random(0.25, 0.95)
+      this.pen.x += -random(0.05, 0.65) * ratio
+      this.pen.y += -random(0.05, 0.65) * ratio
 
       const np = max(floor(random(4.8, 7.17)), round(random(7, 15) * this.acc))
       const dd = random(0.65, 1)
@@ -55,7 +55,7 @@ class Pen {
       for (let j = 0; j < np; j++) {
         const r = map(j, 0, np - 1, 0, dd)
         
-        const offsetMg = Math.sqrt(random()) * map(r, 0, dd, 0.15, 0.5) * 2
+        const offsetMg = Math.sqrt(random()) * map(r, 0, dd, 0.15, 0.5) * 2 * ratio
         offsetAngle += random(TAU)
         const offsetX = Math.cos(offsetAngle) * offsetMg
         const offsetY = Math.sin(offsetAngle) * offsetMg
@@ -261,19 +261,28 @@ class RectPen extends Pen {
   calculatePoints() {
     this.points = []
 
-    const p1 = createVector(-this.w / 2, 0)
-    const p2 = createVector(-this.w / 2, this.h)
-    const p3 = createVector(this.w / 2, 0)
-    const p4 = createVector(this.w / 2, this.h)
+    const hw = this.w * 0.5
+    const p1 = { x: -hw, y: 0 }
+    const p2 = { x: -hw, y: this.h }
+    const p3 = { x: hw, y: 0 }
+    const p4 = { x: hw, y: this.h}
 
     const np = max(floor(random(2.9, 8.5)), round(random(3) / this.density))
 
+    const tw = this.w
+    const th = this.h
     function lerpWNoise(p1, p2, dt) {
       const x = lerp(p1.x, p2.x, dt)
       const y = lerp(p1.y, p2.y, dt)
-      const { x: ogX, y: ogY } = pointToOG(x, y)
-      const t = noisex.simplex2(ogX * 0.06, ogY * 0.06) * TAU
-      return {x: x + cos(t), y: y + sin(t)}
+
+      const ogx = (x / (tw || 1)) * 10
+      const ogy = (y / (th || 1)) * 10
+      const t = noisex.simplex2(ogx * 0.06, ogy * 0.06) * TAU
+
+      return {
+        x: x + Math.cos(t) * ratio,
+        y: y + Math.sin(t) * ratio,
+      }
     }
 
     for (let i = 0; i < np; i++) {
