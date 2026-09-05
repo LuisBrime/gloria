@@ -201,6 +201,8 @@ function setupDrawingData() {
     'has creatures': criaturasController.totalCriaturas > 0,
     'has events': criaturasController.hasEvents,
   })
+
+  // iframing comms
   window.parent.postMessage({
     type: 'SKETCH_FEATURES',
     features: {
@@ -211,7 +213,18 @@ function setupDrawingData() {
       hasCreatures: criaturasController.totalCriaturas > 0,
       hasEvents: criaturasController.hasEvents,
     },
-  });
+  })
+  // allowing parent windows to transmit keydown & trigger keyTyped()
+  window.addEventListener('message', (e) => {
+    if (!e.data || e.data.type !== 'PARENT_KEY_DOWN') return
+
+    key = e.data.key
+    keyCode = e.data.keyCode
+
+    if (e.data.key.length === 1 && typeof keyTyped === 'function') {
+      keyTyped();
+    }
+  })
 
   p5grain.setup()
 }
