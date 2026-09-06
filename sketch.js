@@ -213,6 +213,11 @@ function setupDrawingData() {
       hasCreatures: criaturasController.totalCriaturas > 0,
       hasEvents: criaturasController.hasEvents,
     },
+    seeds: {
+      rSeed,
+      nSeed,
+      hash: $fx.hash,
+    },
   })
   // allowing parent windows to transmit keydown & trigger keyTyped()
   window.addEventListener('message', (e) => {
